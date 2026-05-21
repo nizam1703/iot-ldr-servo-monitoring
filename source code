@@ -1,21 +1,24 @@
 #define BLYNK_TEMPLATE_ID "ISI TEMPLATE ID"
-#define BLYNK_TEMPLATE_NAME "ISI NAMA TEMPLATE"
+#define BLYNK_TEMPLATE_NAME "ISI TEMPLATE NAMA"
 #define BLYNK_AUTH_TOKEN "ISI AUTH TOKEN BLYNK"
 
 #define BLYNK_PRINT Serial
 
-#include <WiFi.h>
-#include <BlynkSimpleEsp32.h>
-#include <ESP32Servo.h>
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#include <Servo.h>
 
 char ssid[] = "ISI NAMA WIFI";
 char pass[] = "ISI PASSWORD WIFI";
 
-#define LDR_PIN 34
-#define SERVO_PIN 13
+// Pin komponen ESP8266
+#define LDR_PIN A0
+#define SERVO_PIN D4
 
-#define AMBANG_CAHAYA 2000
+// Ambang batas cahaya
+#define AMBANG_CAHAYA 500
 
+// Posisi servo
 #define SERVO_TUTUP 0
 #define SERVO_BUKA 90
 
@@ -28,6 +31,7 @@ int sudutServo;
 void bacaSensorLDR() {
   nilaiLDR = analogRead(LDR_PIN);
 
+  // Jika nilai LDR lebih kecil dari ambang, dianggap gelap
   if (nilaiLDR < AMBANG_CAHAYA) {
     sudutServo = SERVO_TUTUP;
     Serial.print("Kondisi: Gelap");
@@ -39,6 +43,7 @@ void bacaSensorLDR() {
 
   servo.write(sudutServo);
 
+  // Kirim data ke Blynk
   Blynk.virtualWrite(V0, nilaiLDR);
   Blynk.virtualWrite(V1, sudutServo);
 
