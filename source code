@@ -1,0 +1,65 @@
+#define BLYNK_TEMPLATE_ID "ISI TEMPLATE ID"
+#define BLYNK_TEMPLATE_NAME "ISI NAMA TEMPLATE"
+#define BLYNK_AUTH_TOKEN "ISI AUTH TOKEN BLYNK"
+
+#define BLYNK_PRINT Serial
+
+#include <WiFi.h>
+#include <BlynkSimpleEsp32.h>
+#include <ESP32Servo.h>
+
+char ssid[] = "ISI NAMA WIFI";
+char pass[] = "ISI PASSWORD WIFI";
+
+#define LDR_PIN 34
+#define SERVO_PIN 13
+
+#define AMBANG_CAHAYA 2000
+
+#define SERVO_TUTUP 0
+#define SERVO_BUKA 90
+
+Servo servo;
+BlynkTimer timer;
+
+int nilaiLDR;
+int sudutServo;
+
+void bacaSensorLDR() {
+  nilaiLDR = analogRead(LDR_PIN);
+
+  if (nilaiLDR < AMBANG_CAHAYA) {
+    sudutServo = SERVO_TUTUP;
+    Serial.print("Kondisi: Gelap");
+  } 
+  else {
+    sudutServo = SERVO_BUKA;
+    Serial.print("Kondisi: Terang");
+  }
+
+  servo.write(sudutServo);
+
+  Blynk.virtualWrite(V0, nilaiLDR);
+  Blynk.virtualWrite(V1, sudutServo);
+
+  Serial.print(" | Nilai LDR: ");
+  Serial.print(nilaiLDR);
+  Serial.print(" | Sudut Servo: ");
+  Serial.println(sudutServo);
+}
+
+void setup() {
+  Serial.begin(115200);
+
+  servo.attach(SERVO_PIN);
+  servo.write(SERVO_TUTUP);
+
+  Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
+
+  timer.setInterval(1000L, bacaSensorLDR);
+}
+
+void loop() {
+  Blynk.run();
+  timer.run();
+}
